@@ -20,41 +20,41 @@ var connection = mysql.createConnection({
   database : 'test_db',    //DB名
   port     : 3306 //ポート,デフォルトでも3306
 });
-var data=[];
-app.get('/',function(req,res){
-        var sql = 'select * from test_table';
-        var query = connection.query(sql);
-        query
-            .on('result',function(rows){
-                data.push(rows);
-            })
-            .on('end',function(){
-                res.writeHead(200,{
-                    'Content-Type':'application/json',
-                    'charset':'utf-8'
-                });
-                res.write(JSON.stringify(data),encoding='utf8');
-                res.end();
-            })
-})
-
-app.get('/test',function(req,res){
-        var sql = 'select * from test_table';
-        var query = connection.query(sql, function(error, resultList) {
-            _.each(resultList, function(result) {
-                data.push(result.id);
-            });
-
-            res.writeHead(200,{
-                'Content-Type':'application/json',
-                'charset':'utf-8'
-            });
-            res.write(JSON.stringify(data),encoding='utf8');
-            res.end();
+app.get('/',function(request,response){
+    var data=[];
+    var sql = 'select * from test_table';
+    var query = connection.query(sql, function(error, resultList) {
+        _.each(resultList, function(result) {
+            data.push(result.id);
         });
-})
 
-app.listen(3000);
+        response.writeHead(200,{
+            'Content-Type':'application/json',
+            'charset':'utf-8'
+        });
+        response.write(JSON.stringify(data),encoding='utf8');
+        response.end();
+    });
+});
+
+app.get('/test',function(request,response){
+    var data=[];
+    var sql = 'select * from test_table';
+    var query = connection.query(sql, function(error, resultList) {
+        _.each(resultList, function(result) {
+            data.push(result.id + "test");
+        });
+
+        response.writeHead(200,{
+            'Content-Type':'application/json',
+            'charset':'utf-8'
+        });
+        response.write(JSON.stringify(data),encoding='utf8');
+        response.end();
+    });
+});
+
+app.listen(80);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -70,37 +70,5 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/users', users);
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
-});
-
-// error handlers
-
-// development error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-  app.use(function(err, req, res, next) {
-    res.status(err.status || 500);
-    res.render('error', {
-      message: err.message,
-      error: err
-    });
-  });
-}
-
-// production error handler
-// no stacktraces leaked to user
-app.use(function(err, req, res, next) {
-  res.status(err.status || 500);
-  res.render('error', {
-    message: err.message,
-    error: {}
-  });
-});
-
 
 module.exports = app;

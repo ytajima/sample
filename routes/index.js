@@ -723,6 +723,33 @@ router.get('/rankPlayerAgi',function(request, response, callback){
     ], callback);
 });
 
+router.get('/rankItemValue',function(request, response, callback){
+    var isAscend = request.param('isAscend');
+
+    var data = {};
+
+    data.result = true;
+    async.waterfall([
+        function(callback) {
+            getRankItem(request, {
+                sortColumn: "itemValue",
+                isAscend: isAscend
+            }, callback);
+        },
+        function(result, callback) {
+            response.writeHead(200,{
+                'Content-Type':'application/json',
+                'charset':'utf-8'
+            });
+
+            data.data = result;
+
+            response.write(JSON.stringify(data),encoding='utf8');
+            response.end();
+        }
+    ], callback);
+});
+
 
 
 
@@ -1013,6 +1040,23 @@ var getRankPlayer = function(request, params, callback)  {
     });
 };
 
+var getRankItem = function(request, params, callback)  {
+    var data = [];
+
+    var sortColumn = params.sortColumn;
+    var sortOrder = "asc";
+    if(params.isAscend == "false") {
+        sortOrder = "desc";
+    }
+
+    var sql = 'select * from item order by ' + sortColumn + ' ' + sortOrder + ' limit 20';
+    var query = connection.query(sql, function(error, resultList) {
+        _.each(resultList, function(result) {
+            data.push(result);
+        });
+        callback(null, data);
+    });
+};
 
 
 

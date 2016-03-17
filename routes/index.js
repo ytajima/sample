@@ -181,6 +181,38 @@ router.get('/updatePlayer',function(request, response, callback){
     ], callback);
 });
 
+router.get('/updateMap',function(request, response, callback){
+    var targetMapId = request.param('targetMapId');
+
+    var newMapItems = request.param('newMapItems');
+
+    var data = {};
+
+    data.result = true;
+    async.waterfall([
+        function(callback) {
+            updateMapByMapId(request, {
+                targetPlayerId: targetMapId,
+                newMapItems: newMapItems
+            }, callback);
+        },
+        function(callback) {
+            getReadMapByMapId(request, targetMapId, callback);
+        },
+        function(result, callback) {
+            response.writeHead(200,{
+                'Content-Type':'application/json',
+                'charset':'utf-8'
+            });
+
+            data.data = result;
+
+            response.write(JSON.stringify(data),encoding='utf8');
+            response.end();
+        }
+    ], callback);
+});
+
 
 
 
@@ -321,6 +353,19 @@ var updatePlayerByPlayerId = function(request, params, callback)  {
     var sql = 'update player set '
         + updateSql
         + ' where playerId = ' + '"' + params.targetPlayerId + '"';
+    var query = connection.query(sql, function(error, resultList) {
+        callback();
+    });
+};
+
+var updateMapByMapId = function(request, params, callback)  {
+    var data = [];
+    var updateSql = "";
+    if(params.newMapItems) { updateSql += "mapItems = '" + params.newMapItems + "'"};
+
+    var sql = 'update map set '
+        + updateSql
+        + ' where mapId = ' + '"' + params.targetMapId + '"';
     var query = connection.query(sql, function(error, resultList) {
         callback();
     });

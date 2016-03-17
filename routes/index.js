@@ -534,6 +534,235 @@ router.get('/updatePlayerAgi',function(request, response, callback){
     ], callback);
 });
 
+router.get('/rankPlayerHp',function(request, response, callback){
+    var isAscend = request.param('isAscend');
+
+    var data = {};
+
+    data.result = true;
+    async.waterfall([
+        function(callback) {
+            getRankPlayer(request, {
+                sortColumn: "playerHp",
+                isAscend: isAscend
+            }, callback);
+        },
+        function(result, callback) {
+            response.writeHead(200,{
+                'Content-Type':'application/json',
+                'charset':'utf-8'
+            });
+
+            data.data = result;
+
+            response.write(JSON.stringify(data),encoding='utf8');
+            response.end();
+        }
+    ], callback);
+});
+
+router.get('/rankPlayerMp',function(request, response, callback){
+    var isAscend = request.param('isAscend');
+
+    var data = {};
+
+    data.result = true;
+    async.waterfall([
+        function(callback) {
+            getRankPlayer(request, {
+                sortColumn: "playerMp",
+                isAscend: isAscend
+            }, callback);
+        },
+        function(result, callback) {
+            response.writeHead(200,{
+                'Content-Type':'application/json',
+                'charset':'utf-8'
+            });
+
+            data.data = result;
+
+            response.write(JSON.stringify(data),encoding='utf8');
+            response.end();
+        }
+    ], callback);
+});
+
+router.get('/rankPlayerExp',function(request, response, callback){
+    var isAscend = request.param('isAscend');
+
+    var data = {};
+
+    data.result = true;
+    async.waterfall([
+        function(callback) {
+            getRankPlayer(request, {
+                sortColumn: "playerExp",
+                isAscend: isAscend
+            }, callback);
+        },
+        function(result, callback) {
+            response.writeHead(200,{
+                'Content-Type':'application/json',
+                'charset':'utf-8'
+            });
+
+            data.data = result;
+
+            response.write(JSON.stringify(data),encoding='utf8');
+            response.end();
+        }
+    ], callback);
+});
+
+router.get('/rankPlayerAtk',function(request, response, callback){
+    var isAscend = request.param('isAscend');
+
+    var data = {};
+
+    data.result = true;
+    async.waterfall([
+        function(callback) {
+            getRankPlayer(request, {
+                sortColumn: "playerAtk",
+                isAscend: isAscend
+            }, callback);
+        },
+        function(result, callback) {
+            response.writeHead(200,{
+                'Content-Type':'application/json',
+                'charset':'utf-8'
+            });
+
+            data.data = result;
+
+            response.write(JSON.stringify(data),encoding='utf8');
+            response.end();
+        }
+    ], callback);
+});
+
+router.get('/rankPlayerDef',function(request, response, callback){
+    var isAscend = request.param('isAscend');
+
+    var data = {};
+
+    data.result = true;
+    async.waterfall([
+        function(callback) {
+            getRankPlayer(request, {
+                sortColumn: "playerDef",
+                isAscend: isAscend
+            }, callback);
+        },
+        function(result, callback) {
+            response.writeHead(200,{
+                'Content-Type':'application/json',
+                'charset':'utf-8'
+            });
+
+            data.data = result;
+
+            response.write(JSON.stringify(data),encoding='utf8');
+            response.end();
+        }
+    ], callback);
+});
+
+router.get('/rankPlayerInt',function(request, response, callback){
+    var isAscend = request.param('isAscend');
+
+    var data = {};
+
+    data.result = true;
+    async.waterfall([
+        function(callback) {
+            getRankPlayer(request, {
+                sortColumn: "playerInt",
+                isAscend: isAscend
+            }, callback);
+        },
+        function(result, callback) {
+            response.writeHead(200,{
+                'Content-Type':'application/json',
+                'charset':'utf-8'
+            });
+
+            data.data = result;
+
+            response.write(JSON.stringify(data),encoding='utf8');
+            response.end();
+        }
+    ], callback);
+});
+
+router.get('/rankPlayerAgi',function(request, response, callback){
+    var isAscend = request.param('isAscend');
+
+    var data = {};
+
+    data.result = true;
+    async.waterfall([
+        function(callback) {
+            getRankPlayer(request, {
+                sortColumn: "playerAgi",
+                isAscend: isAscend
+            }, callback);
+        },
+        function(result, callback) {
+            response.writeHead(200,{
+                'Content-Type':'application/json',
+                'charset':'utf-8'
+            });
+
+            data.data = result;
+
+            response.write(JSON.stringify(data),encoding='utf8');
+            response.end();
+        }
+    ], callback);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -558,6 +787,39 @@ router.get('/db',function(request, response, callback){
         }
     ], callback);
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -732,6 +994,28 @@ var updatePlayerValueByPlayerId = function(request, params, callback)  {
         callback();
     });
 };
+
+var getRankPlayer = function(request, params, callback)  {
+    var data = [];
+
+    var sortColumn = params.sortColumn;
+    var sortOrder = "asc";
+    if(params.isAscend == "false") {
+        sortOrder = "desc";
+    }
+
+    var sql = 'select * from player order by ' + sortColumn + ' ' + sortOrder + ' limit 20';
+    var query = connection.query(sql, function(error, resultList) {
+        _.each(resultList, function(result) {
+            data.push(result);
+        });
+        callback(null, data);
+    });
+};
+
+
+
+
 
 
 module.exports = router;

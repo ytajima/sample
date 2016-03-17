@@ -192,7 +192,7 @@ router.get('/updateMap',function(request, response, callback){
     async.waterfall([
         function(callback) {
             updateMapByMapId(request, {
-                targetPlayerId: targetMapId,
+                targetMapId: targetMapId,
                 newMapItems: newMapItems
             }, callback);
         },

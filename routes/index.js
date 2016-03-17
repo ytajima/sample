@@ -57,7 +57,7 @@ router.get('/readPlayer',function(request, response, callback){
 
             data.readPlayer = readPlayer;
 
-            response.write(JSON.stringify(readPlayer),encoding='utf8');
+            response.write(JSON.stringify(data),encoding='utf8');
             response.end();
         }
     ], callback);
@@ -151,7 +151,7 @@ var getItemAll = function(request, callback)  {
 
 var getReadPlayerByPlayerId = function(request, playerId, callback)  {
     var data = [];
-    var sql = 'select * from player where playerId = ' + playerId;
+    var sql = 'select * from player where playerId = "' + playerId + '"';
     var query = connection.query(sql, function(error, resultList) {
         _.each(resultList, function(result) {
             data.push(result);

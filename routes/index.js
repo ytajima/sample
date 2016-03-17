@@ -958,6 +958,52 @@ router.get('/challenge3',function(request, response, callback){
     ], callback);
 });
 
+router.get('/challenge1',function(request, response, callback){
+    var isAscend = request.param('isAscend');
+
+    var data = {};
+
+    data.result = true;
+
+    var playerData = [];
+    async.waterfall([
+        function(callback) {
+            getAllPlayer(request, callback);
+        },
+        function(playerList, callback) {
+            playerData = playerList;
+            async.each(playerData, function(player, callback) {
+                player.strong = (player.playerHp + player.playerMp) * ((player.playerAtk * player.playerHp) + (player.playerInt * player.playerMp)) * player.playerDef * player.playerAgi;
+                callback();
+            }, callback);
+        },
+        function(callback) {
+            // strong でソート
+            if(isAscend == "true") {
+                playerData = _.sortBy(playerData, function(p) { return p.strong });
+            } else {
+                playerData = _.sortBy(playerData, function(p) { return -p.strong });
+            }
+            callback();
+        },
+        function(result, callback) {
+            response.writeHead(200,{
+                'Content-Type':'application/json',
+                'charset':'utf-8'
+            });
+
+            data.data = _.first(playerData,20);
+
+            // データ生成で使用した不要要素を削除
+            _.each(data.data, function(data) {
+                delete(data.strong);
+            });
+
+            response.write(JSON.stringify(data),encoding='utf8');
+            response.end();
+        }
+    ], callback);
+});
 
 
 

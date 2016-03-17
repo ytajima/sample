@@ -63,6 +63,29 @@ router.get('/readPlayer',function(request, response, callback){
     ], callback);
 });
 
+router.get('/readMap',function(request, response, callback){
+    var targetMapId = request.param('targetMapId');
+
+    var data = {};
+
+    data.result = true;
+    async.waterfall([
+        function(callback) {
+            getReadMapByMapId(request, targetMapId, callback);
+        },
+        function(readPlayer, callback) {
+            response.writeHead(200,{
+                'Content-Type':'application/json',
+                'charset':'utf-8'
+            });
+
+            data.data = readPlayer;
+
+            response.write(JSON.stringify(data),encoding='utf8');
+            response.end();
+        }
+    ], callback);
+});
 
 
 
@@ -152,6 +175,17 @@ var getItemAll = function(request, callback)  {
 var getReadPlayerByPlayerId = function(request, playerId, callback)  {
     var data = [];
     var sql = 'select * from player where playerId = "' + playerId + '"';
+    var query = connection.query(sql, function(error, resultList) {
+        _.each(resultList, function(result) {
+            data.push(result);
+        });
+        callback(null, data);
+    });
+};
+
+var getReadMapByMapId = function(request, mapId, callback)  {
+    var data = [];
+    var sql = 'select * from map where mapId = "' + mapId + '"';
     var query = connection.query(sql, function(error, resultList) {
         _.each(resultList, function(result) {
             data.push(result);

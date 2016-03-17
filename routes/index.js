@@ -119,7 +119,7 @@ router.get('/findItemOwner',function(request, response, callback){
     data.result = true;
     async.waterfall([
         function(callback) {
-            getPlayerByItemId(request, targetItemId, callback);
+            findItemOwner(request, targetItemId, callback);
         },
         function(result, callback) {
             response.writeHead(200,{
@@ -245,7 +245,42 @@ router.get('/updateItem',function(request, response, callback){
     ], callback);
 });
 
+router.get('/switchItemOwner',function(request, response, callback){
+    var targetItemId = request.param('targetItemId');
 
+    var newItemOwner = request.param('newItemOwner');
+
+    var data = {};
+
+    data.result = true;
+    async.waterfall([
+        function(callback) {
+            getReadPlayerByPlayerId(request, newItemOwner, callback);
+        },
+        function(itemOwner, callback) {
+            pr(itemOwner);
+            switchItemOwner(request, {
+                targetItemId: targetItemId,
+                newItemOwner:    newItemOwner,
+                baseItemOwnerItems: itemOwner[0].playerItems
+            }, callback);
+        },
+        function(callback) {
+            getReadPlayerByPlayerId(request, newItemOwner, callback);
+        },
+        function(result, callback) {
+            response.writeHead(200,{
+                'Content-Type':'application/json',
+                'charset':'utf-8'
+            });
+
+            data.data = result;
+
+            response.write(JSON.stringify(data),encoding='utf8');
+            response.end();
+        }
+    ], callback);
+});
 
 
 
@@ -357,9 +392,10 @@ var getReadItemByItemId = function(request, itemId, callback)  {
     });
 };
 
-var getPlayerByItemId = function(request, itemId, callback)  {
+var findItemOwner = function(request, itemId, callback)  {
     var data = [];
     var sql = 'select * from player where playerItems LIKE "%' + itemId + '%"';
+pr(sql);
     var query = connection.query(sql, function(error, resultList) {
         _.each(resultList, function(result) {
             data.push(result);
@@ -413,5 +449,26 @@ var updateItemByItemId = function(request, params, callback)  {
         callback();
     });
 };
+
+var switchItemOwner = function(request, params, callback)  {
+    var data = [];
+    var updateSql = "";
+pr(params);
+    if(params.baseItemOwnerItems) {
+        updateSql += 'playerItems = "' + params.baseItemOwnerItems + ',' + params.targetItemId + '"';
+    } else {
+        updateSql += 'playerItems = "' + params.targetItemId + '"';
+    }
+
+    var sql = 'update player set '
+        + updateSql
+        + ' where playerId = "' + params.newItemOwner + '"';
+pr(sql);
+    var query = connection.query(sql, function(error, resultList) {
+        callback();
+    });
+};
+
+
 
 module.exports = router;

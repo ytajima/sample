@@ -5,6 +5,9 @@ var _ = require('underscore');
 var util = require('util');
 var fs = require('fs');
 var mysql = require('mysql');
+var mysql = require('mysql');
+var qs = require('qs');
+require('date-utils');
 
 //////////////////////////////////////
 
@@ -136,6 +139,7 @@ router.get('/findItemOwner',function(request, response, callback){
 });
 
 router.get('/updatePlayer',function(request, response, callback){
+
     var targetPlayerId = request.param('targetPlayerId');
 
     var newPlayerHp = request.param('newPlayerHp');
@@ -163,6 +167,22 @@ router.get('/updatePlayer',function(request, response, callback){
                 newPlayerAgi:   newPlayerAgi,
                 newPlayerItems: newPlayerItems
             }, callback);
+        },
+        function(callback) {
+            // ログ ///////////////////
+            var urlPath = request.url.split("?");
+            var apiPath = urlPath[0].replace("/","");
+            var apiParam = JSON.stringify(qs.parse(urlPath[1]));
+            var dt = new Date();
+            var logDateTime = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
+            var logParam = {
+                apiPath: apiPath,
+                apiParam: apiParam,
+                logDateTime: logDateTime
+            };
+            /////////////////////
+            logParam.playerId = targetPlayerId;
+            insertPlayerLog(request, logParam, callback);
         },
         function(callback) {
             getReadPlayerByPlayerId(request, targetPlayerId, callback);
@@ -227,6 +247,22 @@ router.get('/updateItem',function(request, response, callback){
                 targetItemId: targetItemId,
                 newItemValue:    newItemValue
             }, callback);
+        },
+        function(callback) {
+            // ログ ///////////////////
+            var urlPath = request.url.split("?");
+            var apiPath = urlPath[0].replace("/","");
+            var apiParam = JSON.stringify(qs.parse(urlPath[1]));
+            var dt = new Date();
+            var logDateTime = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
+            var logParam = {
+                apiPath: apiPath,
+                apiParam: apiParam,
+                logDateTime: logDateTime
+            };
+            /////////////////////
+            logParam.itemId = targetItemId;
+            insertItemLog(request, logParam, callback);
         },
         function(callback) {
             getReadItemByItemId(request, targetItemId, callback);
@@ -774,7 +810,55 @@ router.get('/listPlayerOnMap',function(request, response, callback){
     ], callback);
 });
 
+router.get('/getPlayerLog',function(request, response, callback){
+    var targetPlayerId = request.param('targetPlayerId');
 
+    var data = {};
+
+    data.result = true;
+    async.waterfall([
+        function(callback) {
+            getPlayerLog(request, targetPlayerId, callback);
+        },
+        function(result, callback) {
+            response.writeHead(200,{
+                'Content-Type':'application/json',
+                'charset':'utf-8'
+            });
+
+            result.apiParam = JSON.stringify(result.apiParam);
+            data.data = result;
+
+            response.write(JSON.stringify(data),encoding='utf8');
+            response.end();
+        }
+    ], callback);
+});
+
+router.get('/getItemLog',function(request, response, callback){
+    var targetItemId = request.param('targetItemId');
+
+    var data = {};
+
+    data.result = true;
+    async.waterfall([
+        function(callback) {
+            getItemLog(request, targetItemId, callback);
+        },
+        function(result, callback) {
+            response.writeHead(200,{
+                'Content-Type':'application/json',
+                'charset':'utf-8'
+            });
+
+            result.apiParam = JSON.stringify(result.apiParam);
+            data.data = result;
+
+            response.write(JSON.stringify(data),encoding='utf8');
+            response.end();
+        }
+    ], callback);
+});
 
 
 
@@ -964,7 +1048,6 @@ var getReadItemByItemId = function(request, itemId, callback)  {
 var findItemOwner = function(request, itemId, callback)  {
     var data = [];
     var sql = 'select * from player where playerItems LIKE "%' + itemId + '%"';
-pr(sql);
     var query = connection.query(sql, function(error, resultList) {
         _.each(resultList, function(result) {
             data.push(result);
@@ -1092,8 +1175,63 @@ var getRankItem = function(request, params, callback)  {
     });
 };
 
+var insertPlayerLog = function(request, params, callback)  {
+    var data = [];
+    var sql = 'insert into playerLog ('
+    + 'playerId, '
+    + 'apiPath, '
+    + 'apiParam, '
+    + 'logDateTime'
+    + ') values ( '
+    + '"' + params.playerId + '",'
+    + '"' + params.apiPath + '",'
+    + '" ? ",'
+    + '"' + params.logDateTime + '"'
+    + ') ';
+    var query = connection.query(sql, [params.apiParam], function(err, resultList) {
+        callback();
+    });
+};
 
+var insertItemLog = function(request, params, callback)  {
+    var data = [];
+    var sql = 'insert into itemLog ('
+        + 'itemId , '
+        + 'apiPath , '
+        + 'apiParam , '
+        + 'logDateTime'
+        + ') values ( '
+        + '"' + params.itemId + '",'
+        + '"' + params.apiPath + '",'
+        + '" ? ",'
+        + '"' + params.logDateTime + '"'
+        + ') ';
+    var query = connection.query(sql, [params.apiParam], function(err, resultList) {
+        callback();
+    });
+};
 
+var getPlayerLog = function(request, playerId, callback)  {
+    var data = [];
+    var sql = 'select * from playerLog where playerId = "' + playerId + '" order by logDatetime desc limit 20';
+    var query = connection.query(sql, function(error, resultList) {
+        _.each(resultList, function(result) {
+            data.push(result);
+        });
+        callback(null, data);
+    });
+};
+
+var getItemLog = function(request, itemId, callback)  {
+    var data = [];
+    var sql = 'select * from itemLog where itemId = "' + itemId + '" order by logDatetime desc limit 20';
+    var query = connection.query(sql, function(error, resultList) {
+        _.each(resultList, function(result) {
+            data.push(result);
+        });
+        callback(null, data);
+    });
+};
 
 
 module.exports = router;

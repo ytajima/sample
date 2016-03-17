@@ -55,7 +55,7 @@ router.get('/readPlayer',function(request, response, callback){
                 'charset':'utf-8'
             });
 
-            data.readPlayer = readPlayer;
+            data.data = readPlayer;
 
             response.write(JSON.stringify(data),encoding='utf8');
             response.end();

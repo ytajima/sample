@@ -750,6 +750,29 @@ router.get('/rankItemValue',function(request, response, callback){
     ], callback);
 });
 
+router.get('/listPlayerOnMap',function(request, response, callback){
+    var targetMapId = request.param('targetMapId');
+
+    var data = {};
+
+    data.result = true;
+    async.waterfall([
+        function(callback) {
+            getPlayerByMapId(request, targetMapId, callback);
+        },
+        function(result, callback) {
+            response.writeHead(200,{
+                'Content-Type':'application/json',
+                'charset':'utf-8'
+            });
+
+            data.data = result;
+
+            response.write(JSON.stringify(data),encoding='utf8');
+            response.end();
+        }
+    ], callback);
+});
 
 
 
@@ -897,6 +920,17 @@ var getItemAll = function(request, callback)  {
 var getReadPlayerByPlayerId = function(request, playerId, callback)  {
     var data = [];
     var sql = 'select * from player where playerId = "' + playerId + '"';
+    var query = connection.query(sql, function(error, resultList) {
+        _.each(resultList, function(result) {
+            data.push(result);
+        });
+        callback(null, data);
+    });
+};
+
+var getPlayerByMapId = function(request, mapId, callback)  {
+    var data = [];
+    var sql = 'select * from player where playerMap = "' + mapId + '"';
     var query = connection.query(sql, function(error, resultList) {
         _.each(resultList, function(result) {
             data.push(result);

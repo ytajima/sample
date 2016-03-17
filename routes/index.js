@@ -825,8 +825,6 @@ router.get('/getPlayerLog',function(request, response, callback){
                 'Content-Type':'application/json',
                 'charset':'utf-8'
             });
-
-            result.apiParam = JSON.stringify(result.apiParam);
             data.data = result;
 
             response.write(JSON.stringify(data),encoding='utf8');
@@ -851,7 +849,6 @@ router.get('/getItemLog',function(request, response, callback){
                 'charset':'utf-8'
             });
 
-            result.apiParam = JSON.stringify(result.apiParam);
             data.data = result;
 
             response.write(JSON.stringify(data),encoding='utf8');
@@ -1185,13 +1182,14 @@ var insertPlayerLog = function(request, params, callback)  {
     + ') values ( '
     + '"' + params.playerId + '",'
     + '"' + params.apiPath + '",'
-    + '" ? ",'
+    + '"?",'
     + '"' + params.logDateTime + '"'
     + ') ';
     var query = connection.query(sql, [params.apiParam], function(err, resultList) {
         callback();
     });
 };
+
 
 var insertItemLog = function(request, params, callback)  {
     var data = [];
@@ -1203,7 +1201,7 @@ var insertItemLog = function(request, params, callback)  {
         + ') values ( '
         + '"' + params.itemId + '",'
         + '"' + params.apiPath + '",'
-        + '" ? ",'
+        + '"?",'
         + '"' + params.logDateTime + '"'
         + ') ';
     var query = connection.query(sql, [params.apiParam], function(err, resultList) {

@@ -22,8 +22,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // 各routes
 var routes_index = require('./routes/index');
-var routes_test = require('./routes/test');
 app.use('/', routes_index);
-app.use('/test', routes_test);
 
 module.exports = app;

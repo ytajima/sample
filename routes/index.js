@@ -111,6 +111,29 @@ router.get('/readItem',function(request, response, callback){
     ], callback);
 });
 
+router.get('/findItemOwner',function(request, response, callback){
+    var targetItemId = request.param('targetItemId');
+
+    var data = {};
+
+    data.result = true;
+    async.waterfall([
+        function(callback) {
+            getPlayerByItemId(request, targetItemId, callback);
+        },
+        function(result, callback) {
+            response.writeHead(200,{
+                'Content-Type':'application/json',
+                'charset':'utf-8'
+            });
+
+            data.data = result;
+
+            response.write(JSON.stringify(data),encoding='utf8');
+            response.end();
+        }
+    ], callback);
+});
 
 
 
@@ -219,6 +242,17 @@ var getReadMapByMapId = function(request, mapId, callback)  {
 var getReadItemByItemId = function(request, itemId, callback)  {
     var data = [];
     var sql = 'select * from item where itemId = "' + itemId + '"';
+    var query = connection.query(sql, function(error, resultList) {
+        _.each(resultList, function(result) {
+            data.push(result);
+        });
+        callback(null, data);
+    });
+};
+
+var getPlayerByItemId = function(request, itemId, callback)  {
+    var data = [];
+    var sql = 'select * from player where playerItems LIKE "%' + itemId + '%"';
     var query = connection.query(sql, function(error, resultList) {
         _.each(resultList, function(result) {
             data.push(result);

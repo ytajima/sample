@@ -282,6 +282,41 @@ router.get('/switchItemOwner',function(request, response, callback){
     ], callback);
 });
 
+router.get('/updatePlayerHp',function(request, response, callback){
+    var targetPlayerId = request.param('targetPlayerId');
+
+    var calcValue = request.param('calcValue');
+
+    calcValue = Number(calcValue);
+    if(calcValue > 0) {
+        calcValue = "+" + calcValue;
+    }
+    var data = {};
+
+    data.result = true;
+    async.waterfall([
+        function(callback) {
+            updatePlayerHpByPlayerId(request, {
+                targetPlayerId: targetPlayerId,
+                calcValue: calcValue
+            }, callback);
+        },
+        function(callback) {
+            getReadPlayerByPlayerId(request, targetPlayerId, callback);
+        },
+        function(result, callback) {
+            response.writeHead(200,{
+                'Content-Type':'application/json',
+                'charset':'utf-8'
+            });
+
+            data.data = result;
+
+            response.write(JSON.stringify(data),encoding='utf8');
+            response.end();
+        }
+    ], callback);
+});
 
 
 
@@ -453,7 +488,6 @@ var updateItemByItemId = function(request, params, callback)  {
 var switchItemOwner = function(request, params, callback)  {
     var data = [];
     var updateSql = "";
-pr(params);
     if(params.baseItemOwnerItems) {
         updateSql += 'playerItems = "' + params.baseItemOwnerItems + ',' + params.targetItemId + '"';
     } else {
@@ -463,12 +497,23 @@ pr(params);
     var sql = 'update player set '
         + updateSql
         + ' where playerId = "' + params.newItemOwner + '"';
-pr(sql);
     var query = connection.query(sql, function(error, resultList) {
         callback();
     });
 };
 
+var updatePlayerHpByPlayerId = function(request, params, callback)  {
+    var data = [];
+    var updateSql = "";
+    if(params.calcValue) { updateSql += "playerHp = playerHp " + params.calcValue };
+
+    var sql = 'update player set '
+        + updateSql
+        + ' where playerId = ' + '"' + params.targetPlayerId + '"';
+    var query = connection.query(sql, function(error, resultList) {
+        callback();
+    });
+};
 
 
 module.exports = router;

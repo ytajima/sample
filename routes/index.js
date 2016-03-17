@@ -135,6 +135,51 @@ router.get('/findItemOwner',function(request, response, callback){
     ], callback);
 });
 
+router.get('/updatePlayer',function(request, response, callback){
+    var targetPlayerId = request.param('targetPlayerId');
+
+    var newPlayerHp = request.param('newPlayerHp');
+    var newPlayerMp = request.param('newPlayerMp');
+    var newPlayerExp = request.param('newPlayerExp');
+    var newPlayerAtk = request.param('newPlayerAtk');
+    var newPlayerDef = request.param('newPlayerDef');
+    var newPlayerInt = request.param('newPlayerInt');
+    var newPlayerAgi = request.param('newPlayerAgi');
+    var newPlayerItems = request.param('newPlayerItems');
+
+    var data = {};
+
+    data.result = true;
+    async.waterfall([
+        function(callback) {
+            updatePlayerByPlayerId(request, {
+                targetPlayerId: targetPlayerId,
+                newPlayerHp:    newPlayerHp,
+                newPlayerMp:    newPlayerMp,
+                newPlayerExp:   newPlayerExp,
+                newPlayerAtk:   newPlayerAtk,
+                newPlayerDef:   newPlayerDef,
+                newPlayerInt:   newPlayerInt,
+                newPlayerAgi:   newPlayerAgi,
+                newPlayerItems: newPlayerItems
+            }, callback);
+        },
+        function(callback) {
+            getReadPlayerByPlayerId(request, targetPlayerId, callback);
+        },
+        function(result, callback) {
+            response.writeHead(200,{
+                'Content-Type':'application/json',
+                'charset':'utf-8'
+            });
+
+            data.data = result;
+
+            response.write(JSON.stringify(data),encoding='utf8');
+            response.end();
+        }
+    ], callback);
+});
 
 
 
@@ -258,6 +303,26 @@ var getPlayerByItemId = function(request, itemId, callback)  {
             data.push(result);
         });
         callback(null, data);
+    });
+};
+
+var updatePlayerByPlayerId = function(request, params, callback)  {
+    var data = [];
+    var updateSql = "";
+    if(params.newPlayerHp) { updateSql += "playerHp = " + params.newPlayerHp };
+    if(params.newPlayerMp) { updateSql += "playerMp = " + params.newPlayerMp };
+    if(params.newPlayerExp) { updateSql += "playerExp = " + params.newPlayerExp };
+    if(params.newPlayerAtk) { updateSql += "playerAtk= " + params.newPlayerAtk };
+    if(params.newPlayerDef) { updateSql += "playerDef = " + params.newPlayerDef };
+    if(params.newPlayerInt) { updateSql += "playerInt = " + params.newPlayerInt };
+    if(params.newPlayerAgi) { updateSql += "playerAgi = " + params.newPlayerAgi };
+    if(params.newPlayerItems) { updateSql += "playerItems = '" + params.newPlayerItems + "'"};
+
+    var sql = 'update player set '
+        + updateSql
+        + ' where playerId = ' + '"' + params.targetPlayerId + '"';
+    var query = connection.query(sql, function(error, resultList) {
+        callback();
     });
 };
 

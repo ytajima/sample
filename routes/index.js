@@ -49,13 +49,13 @@ router.get('/readPlayer',function(request, response, callback){
         function(callback) {
             getReadPlayerByPlayerId(request, targetPlayerId, callback);
         },
-        function(readPlayer, callback) {
+        function(result, callback) {
             response.writeHead(200,{
                 'Content-Type':'application/json',
                 'charset':'utf-8'
             });
 
-            data.data = readPlayer;
+            data.data = result;
 
             response.write(JSON.stringify(data),encoding='utf8');
             response.end();
@@ -73,13 +73,13 @@ router.get('/readMap',function(request, response, callback){
         function(callback) {
             getReadMapByMapId(request, targetMapId, callback);
         },
-        function(readPlayer, callback) {
+        function(result, callback) {
             response.writeHead(200,{
                 'Content-Type':'application/json',
                 'charset':'utf-8'
             });
 
-            data.data = readPlayer;
+            data.data = result;
 
             response.write(JSON.stringify(data),encoding='utf8');
             response.end();
@@ -87,7 +87,29 @@ router.get('/readMap',function(request, response, callback){
     ], callback);
 });
 
+router.get('/readItem',function(request, response, callback){
+    var targetItemId = request.param('targetItemId');
 
+    var data = {};
+
+    data.result = true;
+    async.waterfall([
+        function(callback) {
+            getReadItemByItemId(request, targetItemId, callback);
+        },
+        function(result, callback) {
+            response.writeHead(200,{
+                'Content-Type':'application/json',
+                'charset':'utf-8'
+            });
+
+            data.data = result;
+
+            response.write(JSON.stringify(data),encoding='utf8');
+            response.end();
+        }
+    ], callback);
+});
 
 
 
@@ -194,5 +216,15 @@ var getReadMapByMapId = function(request, mapId, callback)  {
     });
 };
 
+var getReadItemByItemId = function(request, itemId, callback)  {
+    var data = [];
+    var sql = 'select * from item where itemId = "' + itemId + '"';
+    var query = connection.query(sql, function(error, resultList) {
+        _.each(resultList, function(result) {
+            data.push(result);
+        });
+        callback(null, data);
+    });
+};
 
 module.exports = router;

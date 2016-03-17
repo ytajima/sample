@@ -4,55 +4,7 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var _ = require('underscore');
-
-var routes = require('./routes/index');
-var users = require('./routes/users');
-
 var app = express();
-
-var mysql = require('mysql');
-
-var connection = mysql.createConnection({
-  host     : 'localhost', //接続先ホスト
-  user     : 'root',      //ユーザー名
-  password : '',  //パスワード
-  database : 'test_db',    //DB名
-  port     : 3306 //ポート,デフォルトでも3306
-});
-app.get('/',function(request,response){
-    var data=[];
-    var sql = 'select * from test_table';
-    var query = connection.query(sql, function(error, resultList) {
-        _.each(resultList, function(result) {
-            data.push(result.id);
-        });
-
-        response.writeHead(200,{
-            'Content-Type':'application/json',
-            'charset':'utf-8'
-        });
-        response.write(JSON.stringify(data),encoding='utf8');
-        response.end();
-    });
-});
-
-app.get('/test',function(request,response){
-    var data=[];
-    var sql = 'select * from test_table';
-    var query = connection.query(sql, function(error, resultList) {
-        _.each(resultList, function(result) {
-            data.push(result.id + "test");
-        });
-
-        response.writeHead(200,{
-            'Content-Type':'application/json',
-            'charset':'utf-8'
-        });
-        response.write(JSON.stringify(data),encoding='utf8');
-        response.end();
-    });
-});
 
 app.listen(80);
 
@@ -68,7 +20,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
-app.use('/users', users);
+// 各routes
+var routes_index = require('./routes/index');
+var routes_test = require('./routes/test');
+app.use('/', routes_index);
+app.use('/test', routes_test);
 
 module.exports = app;

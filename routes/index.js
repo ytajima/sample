@@ -899,6 +899,12 @@ router.get('/rankPlayerByItemValue',function(request, response, callback){
 
             data.data = _.first(playerData,20);
 
+            // データ生成で使用した不要要素を削除
+            _.each(data.data, function(data) {
+                delete(data.sumItemValue);
+                delete(data.playerItemsList);
+            });
+
             response.write(JSON.stringify(data),encoding='utf8');
             response.end();
         }

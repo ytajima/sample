@@ -296,9 +296,9 @@ router.get('/updatePlayerHp',function(request, response, callback){
     data.result = true;
     async.waterfall([
         function(callback) {
-            updatePlayerHpByPlayerId(request, {
+            updatePlayerValueByPlayerId(request, {
                 targetPlayerId: targetPlayerId,
-                calcValue: calcValue
+                playerHpCalcValue: calcValue
             }, callback);
         },
         function(callback) {
@@ -318,10 +318,221 @@ router.get('/updatePlayerHp',function(request, response, callback){
     ], callback);
 });
 
+router.get('/updatePlayerMp',function(request, response, callback){
+    var targetPlayerId = request.param('targetPlayerId');
 
+    var calcValue = request.param('calcValue');
 
+    calcValue = Number(calcValue);
+    if(calcValue > 0) {
+        calcValue = "+" + calcValue;
+    }
+    var data = {};
 
+    data.result = true;
+    async.waterfall([
+        function(callback) {
+            updatePlayerValueByPlayerId(request, {
+                targetPlayerId: targetPlayerId,
+                playerMpCalcValue: calcValue
+            }, callback);
+        },
+        function(callback) {
+            getReadPlayerByPlayerId(request, targetPlayerId, callback);
+        },
+        function(result, callback) {
+            response.writeHead(200,{
+                'Content-Type':'application/json',
+                'charset':'utf-8'
+            });
 
+            data.data = result;
+
+            response.write(JSON.stringify(data),encoding='utf8');
+            response.end();
+        }
+    ], callback);
+});
+
+router.get('/updatePlayerExp',function(request, response, callback){
+    var targetPlayerId = request.param('targetPlayerId');
+
+    var calcValue = request.param('calcValue');
+
+    calcValue = Number(calcValue);
+    if(calcValue > 0) {
+        calcValue = "+" + calcValue;
+    }
+    var data = {};
+
+    data.result = true;
+    async.waterfall([
+        function(callback) {
+            updatePlayerValueByPlayerId(request, {
+                targetPlayerId: targetPlayerId,
+                playerExpCalcValue: calcValue
+            }, callback);
+        },
+        function(callback) {
+            getReadPlayerByPlayerId(request, targetPlayerId, callback);
+        },
+        function(result, callback) {
+            response.writeHead(200,{
+                'Content-Type':'application/json',
+                'charset':'utf-8'
+            });
+
+            data.data = result;
+
+            response.write(JSON.stringify(data),encoding='utf8');
+            response.end();
+        }
+    ], callback);
+});
+
+router.get('/updatePlayerAtk',function(request, response, callback){
+    var targetPlayerId = request.param('targetPlayerId');
+
+    var calcValue = request.param('calcValue');
+
+    calcValue = Number(calcValue);
+    if(calcValue > 0) {
+        calcValue = "+" + calcValue;
+    }
+    var data = {};
+
+    data.result = true;
+    async.waterfall([
+        function(callback) {
+            updatePlayerValueByPlayerId(request, {
+                targetPlayerId: targetPlayerId,
+                playerAtkCalcValue: calcValue
+            }, callback);
+        },
+        function(callback) {
+            getReadPlayerByPlayerId(request, targetPlayerId, callback);
+        },
+        function(result, callback) {
+            response.writeHead(200,{
+                'Content-Type':'application/json',
+                'charset':'utf-8'
+            });
+
+            data.data = result;
+
+            response.write(JSON.stringify(data),encoding='utf8');
+            response.end();
+        }
+    ], callback);
+});
+
+router.get('/updatePlayerDef',function(request, response, callback){
+    var targetPlayerId = request.param('targetPlayerId');
+
+    var calcValue = request.param('calcValue');
+
+    calcValue = Number(calcValue);
+    if(calcValue > 0) {
+        calcValue = "+" + calcValue;
+    }
+    var data = {};
+
+    data.result = true;
+    async.waterfall([
+        function(callback) {
+            updatePlayerValueByPlayerId(request, {
+                targetPlayerId: targetPlayerId,
+                playerDefCalcValue: calcValue
+            }, callback);
+        },
+        function(callback) {
+            getReadPlayerByPlayerId(request, targetPlayerId, callback);
+        },
+        function(result, callback) {
+            response.writeHead(200,{
+                'Content-Type':'application/json',
+                'charset':'utf-8'
+            });
+
+            data.data = result;
+
+            response.write(JSON.stringify(data),encoding='utf8');
+            response.end();
+        }
+    ], callback);
+});
+
+router.get('/updatePlayerInt',function(request, response, callback){
+    var targetPlayerId = request.param('targetPlayerId');
+
+    var calcValue = request.param('calcValue');
+
+    calcValue = Number(calcValue);
+    if(calcValue > 0) {
+        calcValue = "+" + calcValue;
+    }
+    var data = {};
+
+    data.result = true;
+    async.waterfall([
+        function(callback) {
+            updatePlayerValueByPlayerId(request, {
+                targetPlayerId: targetPlayerId,
+                playerIntCalcValue: calcValue
+            }, callback);
+        },
+        function(callback) {
+            getReadPlayerByPlayerId(request, targetPlayerId, callback);
+        },
+        function(result, callback) {
+            response.writeHead(200,{
+                'Content-Type':'application/json',
+                'charset':'utf-8'
+            });
+
+            data.data = result;
+
+            response.write(JSON.stringify(data),encoding='utf8');
+            response.end();
+        }
+    ], callback);
+});
+
+router.get('/updatePlayerAgi',function(request, response, callback){
+    var targetPlayerId = request.param('targetPlayerId');
+
+    var calcValue = request.param('calcValue');
+
+    calcValue = Number(calcValue);
+    if(calcValue > 0) {
+        calcValue = "+" + calcValue;
+    }
+    var data = {};
+
+    data.result = true;
+    async.waterfall([
+        function(callback) {
+            updatePlayerValueByPlayerId(request, {
+                targetPlayerId: targetPlayerId,
+                playerAgiCalcValue: calcValue
+            }, callback);
+        },
+        function(callback) {
+            getReadPlayerByPlayerId(request, targetPlayerId, callback);
+        },
+        function(result, callback) {
+            response.writeHead(200,{
+                'Content-Type':'application/json',
+                'charset':'utf-8'
+            });
+
+            data.data = result;
+
+            response.write(JSON.stringify(data),encoding='utf8');
+            response.end();
+        }
+    ], callback);
+});
 
 
 
@@ -502,10 +713,17 @@ var switchItemOwner = function(request, params, callback)  {
     });
 };
 
-var updatePlayerHpByPlayerId = function(request, params, callback)  {
+var updatePlayerValueByPlayerId = function(request, params, callback)  {
     var data = [];
     var updateSql = "";
-    if(params.calcValue) { updateSql += "playerHp = playerHp " + params.calcValue };
+
+    if(params.playerHpCalcValue) { updateSql += "playerHp = playerHp " + params.playerHpCalcValue };
+    if(params.playerMpCalcValue) { updateSql += "playerMp = playerMp " + params.playerMpCalcValue };
+    if(params.playerExpCalcValue) { updateSql += "playerExp = playerExp " + params.playerExpCalcValue };
+    if(params.playerAtkCalcValue) { updateSql += "playerAtk = playerAtk " + params.playerAtkCalcValue };
+    if(params.playerDefCalcValue) { updateSql += "playerDef = playerDef " + params.playerDefCalcValue };
+    if(params.playerIntCalcValue) { updateSql += "playerInt = playerInt " + params.playerIntCalcValue };
+    if(params.playerAgiCalcValue) { updateSql += "playerAgi = playerAgi " + params.playerAgiCalcValue };
 
     var sql = 'update player set '
         + updateSql

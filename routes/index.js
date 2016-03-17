@@ -856,6 +856,54 @@ router.get('/getItemLog',function(request, response, callback){
     ], callback);
 });
 
+router.get('/rankPlayerByItemValue',function(request, response, callback){
+    var isAscend = request.param('isAscend');
+
+    var data = {};
+
+    data.result = true;
+
+    var playerData = [];
+    async.waterfall([
+        function(callback) {
+            getAllPlayer(request, callback);
+        },
+        function(playerList, callback) {
+            playerData = playerList;
+            async.each(playerData, function(player, callback) {
+                player.playerItemsList = player.playerItems.split(",");
+                player.sumItemValue = 0;
+
+                async.each(player.playerItemsList, function(item, callback) {
+                    getReadItemByItemId(request, item, function(error, itemData) {
+                        player.sumItemValue += itemData[0].itemValue;
+                        callback();
+                    });
+                }, callback);
+            }, callback);
+        },
+        function(callback) {
+            // sumItemValue でソート
+            if(isAscend == "true") {
+                playerData = _.sortBy(playerData, function(p) { return p.sumItemValue });
+            } else {
+                playerData = _.sortBy(playerData, function(p) { return -p.sumItemValue });
+            }
+            callback();
+        },
+        function(result, callback) {
+            response.writeHead(200,{
+                'Content-Type':'application/json',
+                'charset':'utf-8'
+            });
+
+            data.data = _.first(playerData,20);
+
+            response.write(JSON.stringify(data),encoding='utf8');
+            response.end();
+        }
+    ], callback);
+});
 
 
 
@@ -1000,6 +1048,28 @@ var getItemAll = function(request, callback)  {
 var getReadPlayerByPlayerId = function(request, playerId, callback)  {
     var data = [];
     var sql = 'select * from player where playerId = "' + playerId + '"';
+    var query = connection.query(sql, function(error, resultList) {
+        _.each(resultList, function(result) {
+            data.push(result);
+        });
+        callback(null, data);
+    });
+};
+
+var getAllPlayer = function(request, callback)  {
+    var data = [];
+    var sql = 'select * from player';
+    var query = connection.query(sql, function(error, resultList) {
+        _.each(resultList, function(result) {
+            data.push(result);
+        });
+        callback(null, data);
+    });
+};
+
+var getAllPlayerLimit = function(request, callback)  {
+    var data = [];
+    var sql = 'select * from player limit 10';
     var query = connection.query(sql, function(error, resultList) {
         _.each(resultList, function(result) {
             data.push(result);
@@ -1229,6 +1299,8 @@ var getItemLog = function(request, itemId, callback)  {
         callback(null, data);
     });
 };
+
+
 
 
 module.exports = router;

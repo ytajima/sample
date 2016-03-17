@@ -294,7 +294,6 @@ router.get('/switchItemOwner',function(request, response, callback){
             getReadPlayerByPlayerId(request, newItemOwner, callback);
         },
         function(itemOwner, callback) {
-            pr(itemOwner);
             switchItemOwner(request, {
                 targetItemId: targetItemId,
                 newItemOwner:    newItemOwner,

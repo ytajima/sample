@@ -213,7 +213,37 @@ router.get('/updateMap',function(request, response, callback){
     ], callback);
 });
 
+router.get('/updateItem',function(request, response, callback){
+    var targetItemId = request.param('targetItemId');
 
+    var newItemValue = request.param('newItemValue');
+
+    var data = {};
+
+    data.result = true;
+    async.waterfall([
+        function(callback) {
+            updateItemByItemId(request, {
+                targetItemId: targetItemId,
+                newItemValue:    newItemValue
+            }, callback);
+        },
+        function(callback) {
+            getReadItemByItemId(request, targetItemId, callback);
+        },
+        function(result, callback) {
+            response.writeHead(200,{
+                'Content-Type':'application/json',
+                'charset':'utf-8'
+            });
+
+            data.data = result;
+
+            response.write(JSON.stringify(data),encoding='utf8');
+            response.end();
+        }
+    ], callback);
+});
 
 
 
@@ -366,6 +396,19 @@ var updateMapByMapId = function(request, params, callback)  {
     var sql = 'update map set '
         + updateSql
         + ' where mapId = ' + '"' + params.targetMapId + '"';
+    var query = connection.query(sql, function(error, resultList) {
+        callback();
+    });
+};
+
+var updateItemByItemId = function(request, params, callback)  {
+    var data = [];
+    var updateSql = "";
+    if(params.newItemValue) { updateSql += "itemValue = " + params.newItemValue };
+
+    var sql = 'update item set '
+        + updateSql
+        + ' where itemId = ' + '"' + params.targetItemId + '"';
     var query = connection.query(sql, function(error, resultList) {
         callback();
     });
